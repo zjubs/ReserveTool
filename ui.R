@@ -8,29 +8,33 @@
 # example from : https://yihui.shinyapps.io/DT-selection/
 
 library(shiny)
+library(shinydashboard)
+library(shinythemes)
 
-navbarPage(
-  
-  title = 'DT Selection',
-  
+header <- dashboardHeader(title = "My Dashboard")
 
-  tabPanel(
-    'Cell',
-
-    fluidRow(
-      column(
-        6, h1('Cumulative triangle'), hr(),
-        DT::dataTableOutput('x35'),
-        verbatimTextOutput('y35')
-      )
-    ),
-    fluidRow(
-      column(
-        6, h1('Age to age factors'), hr(),
-        DT::dataTableOutput('x36'),
-        verbatimTextOutput('y36')
-      )
-    )
+sidebar <- dashboardSidebar(
+  sidebarMenu(
+    menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+    menuItem("Widgets", icon = icon("th"), tabName = "widgets",
+             badgeLabel = "new", badgeColor = "green")
   )
-  
 )
+
+body <- dashboardBody(fluidPage
+  (theme=shinytheme("cerulean")),
+  navbarPage(
+    
+    title = 'DT Selection',
+    source("ui_chainladder.R")$value,
+    source("ui_BF.R")$value
+    
+    
+    
+
+    
+  )
+)
+
+ui <- dashboardPage(header, sidebar, body)
+
