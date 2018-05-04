@@ -32,7 +32,7 @@ shinyServer(function(input, output, session) {
   }
   
   edit_weights<-function(edit.list, weights){
-    cat(file=stderr(), "editing","\n")
+    #cat(file=stderr(), "editing","\n")
     res<-weights
     if(!is.null(edit.list)){
       for(i in 1:nrow(edit.list)){
@@ -71,17 +71,16 @@ shinyServer(function(input, output, session) {
    )
    
    output$test1 = renderPrint(orig_weights)
-   output$y36 = renderPrint({a <- input$x36_cells_selected
-                            b<-"blah"
-                            cat(file=stderr(), a,"\n")
-                            cat(file=stderr(), a[1],"\n")
-                            cat(file=stderr(), nrow(a))
-                            new_weights<-edit_weights(a, orig_weights)
-                            new_weights[3,7]<-0
-                            new_weights})
+   new_weights<-reactive({edit_weights(input$x36_cells_selected, orig_weights)})
+   output$y36 = renderPrint({new_weights()})
    
-   zeroweights<-reactive({input$x36_cells_selected})
    
+   
+   #cat(file=stderr(), zeroweights(),"\n")
+   output$test2 = renderPrint({cat(file=stderr(), "here","\n")
+     cat(file=stderr(), new_weights(),"\n")
+     new_weights()
+     })
    #define weight before applying chainladder
    #ata.weights
    

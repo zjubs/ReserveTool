@@ -18,7 +18,8 @@ tabPanel(
           6, h1('Age to age factors'), hr(),
           DT::dataTableOutput('x36'),
           verbatimTextOutput('test1'),
-          verbatimTextOutput('y36')
+          verbatimTextOutput('y36'),
+          verbatimTextOutput('test2')
         )
       )
     ),
