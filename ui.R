@@ -25,7 +25,8 @@ body <- dashboardBody(fluidPage
   (theme=shinytheme("cerulean")),
   navbarPage(
     
-    title = 'DT Selection',
+    title = 'Reserving Tool',
+    source("ui_settings.R")$value,
     source("ui_chainladder.R")$value,
     source("ui_BF.R")$value
     

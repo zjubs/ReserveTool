@@ -14,6 +14,7 @@ library(reshape2)
 
 shinyServer(function(input, output, session) {
   
+  source("chainLadderNew.R")
   checkWeights <- function(Triangle, weights = 1){
     # from chainladder package
     
@@ -49,7 +50,9 @@ shinyServer(function(input, output, session) {
   n.origin = dim(tri)[1]
   
   df = dcast(as.data.frame(RAA), origin ~ dev)#iris[, 1:3]
-  options(DT.options = list(pageLength = n.origin, searching = FALSE, lengthChange = FALSE))
+  options(DT.options = list(pageLength = n.origin, searching = FALSE,
+                            lengthChange = FALSE, ordering=FALSE,
+                            paging = FALSE, info = FALSE))
   
   ata.df = ata(RAA)[1:n.origin-1,]
   
@@ -72,8 +75,7 @@ shinyServer(function(input, output, session) {
    
    output$test1 = renderPrint(orig_weights)
    new_weights<-reactive({edit_weights(input$x36_cells_selected, orig_weights)})
-   output$y36 = renderPrint({new_weights()})
-   
+   new_weights2<-reactive({edit_weights(input$x36_cells_selected, orig_weights)[4,1]})
    
    
    #cat(file=stderr(), zeroweights(),"\n")
@@ -83,6 +85,73 @@ shinyServer(function(input, output, session) {
      })
    #define weight before applying chainladder
    #ata.weights
+   # fit new chainladder model
+   # can I replace coefficients with user selected values
+   user_chainladderfactors<-reactive({user_weights<-edit_weights(input$x36_cells_selected, orig_weights)
+   #CL0<-chainladderNew(tri,user_weights)
+   #sapply(CL0$Models, function(x) summary(x)$coef["x","Estimate"])
+   f1<-function(CL0){
+     sapply(CL0$Models, function(x) summary(x)$coef["x","Estimate"])
+   }
+   
+   res1<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=1,origin.incl=x)))
+   res2<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=0,origin.incl=x)))
+   result<-rbind(t(res1),t(res2))
+   rownames(result)<-c("weighted last 4", "weighted last 3","weighted last 2", "weighted last 1",
+                       "simple last 4", "simple last 3", "simple last 2", "simple last 1")
+   result
+   })
+   #output$y36 = renderPrint({user_chainladder()})
+   output$y36 = DT::renderDataTable(
+     DT::datatable(round(user_chainladderfactors(),digits=3),
+     options = list(ordering=FALSE),
+     selection ="single"
+     )
+   )
+   
+    output$ui <- renderUI({
+      
+      if (is.null(input$input_meth_manual))
+    #is.null(input_meth_manual$input_type)
+        return()
+      
+      r = input$y36_rows_selected
+      selectedfactors<-t(as.matrix(user_chainladderfactors()[r,]))
+      output$selected<- DT::renderDataTable(
+        DT::datatable(round(selectedfactors,digits=3),
+                      options = list(ordering=FALSE)
+        )
+      )
+      output$manual<- DT::renderDataTable(
+        DT::datatable(round(selectedfactors,digits=3),
+                      options = list(ordering=FALSE),
+                      editable = TRUE
+        )
+      )
+      
+      
+      cat(file=stderr(), r,"\n")
+      cat(file=stderr(), selectedfactors,"\n")
+      switch(input$input_meth_manual,
+           "selected" = DT::dataTableOutput("selected"),
+           "manual" = DT::dataTableOutput("manual")
+      )
+      
+      #proxy = dataTableProxy('manual')
+      
+      # observeEvent(input$ui, {
+      #   info = input$ui_cell_edit
+      #   str(info)
+      #   i = info$row
+      #   j = info$col
+      #   v = info$value
+      #   selected_factors[i, j] <<- DT::coerceValue(v, selected_factors[i, j])
+      #   replaceData(proxy, selected_factors, resetPaging = FALSE)  # important
+      # })
+    })
+    
+    
+
    
 
 })
