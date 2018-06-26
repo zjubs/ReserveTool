@@ -10,6 +10,7 @@
 library(shiny)
 library(shinydashboard)
 library(shinythemes)
+library(DT)
 
 header <- dashboardHeader(title = "My Dashboard")
 

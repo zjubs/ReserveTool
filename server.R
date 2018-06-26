@@ -28,18 +28,21 @@ shinyServer(function(input, output, session) {
   }
   
   remove_weight<-function(edit,weights){
+    cat(file=stderr(), "removing","\n")
     weights[edit[1],edit[2]]<-0
+    #cat(file=stderr(), weights,"\n")
     weights
   }
   
   edit_weights<-function(edit.list, weights){
-    #cat(file=stderr(), "editing","\n")
+    cat(file=stderr(), "editing","\n")
     res<-weights
     if(!is.null(edit.list)){
       for(i in 1:nrow(edit.list)){
         res<-remove_weight(edit.list[i,], res)
       }
     }
+    cat(file=stderr(), res,"\n")
     res
   }
   
@@ -91,14 +94,23 @@ shinyServer(function(input, output, session) {
    #CL0<-chainladderNew(tri,user_weights)
    #sapply(CL0$Models, function(x) summary(x)$coef["x","Estimate"])
    f1<-function(CL0){
-     sapply(CL0$Models, function(x) summary(x)$coef["x","Estimate"])
+     sapply(CL0$Models,f2)
    }
+   
+   f2<-function(x){
+     #error handling to set factor to 1 if there is an error which arises if there are no dev factors
+     # otherwise calc a dev factor as usual
+     a<-if(dim(summary(x)$coef)[1] == 0){1}else{
+       summary(x)$coef["x","Estimate"]}
+     cat(file=stderr(), a,"\n")
+     a
+    }
    
    res1<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=1,origin.incl=x)))
    res2<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=0,origin.incl=x)))
    result<-rbind(t(res1),t(res2))
    rownames(result)<-c("weighted last 4", "weighted last 3","weighted last 2", "weighted last 1",
-                       "simple last 4", "simple last 3", "simple last 2", "simple last 1")
+                       "simple last 4", "simple last 3","simple last 2", "simple last 1")
    result
    })
    #output$y36 = renderPrint({user_chainladder()})
@@ -109,46 +121,85 @@ shinyServer(function(input, output, session) {
      )
    )
    
-    output$ui <- renderUI({
-      
-      if (is.null(input$input_meth_manual))
-    #is.null(input_meth_manual$input_type)
-        return()
-      
-      r = input$y36_rows_selected
-      selectedfactors<-t(as.matrix(user_chainladderfactors()[r,]))
-      output$selected<- DT::renderDataTable(
-        DT::datatable(round(selectedfactors,digits=3),
-                      options = list(ordering=FALSE)
-        )
-      )
-      output$manual<- DT::renderDataTable(
-        DT::datatable(round(selectedfactors,digits=3),
-                      options = list(ordering=FALSE),
-                      editable = TRUE
-        )
-      )
-      
-      
-      cat(file=stderr(), r,"\n")
-      cat(file=stderr(), selectedfactors,"\n")
-      switch(input$input_meth_manual,
-           "selected" = DT::dataTableOutput("selected"),
-           "manual" = DT::dataTableOutput("manual")
-      )
-      
-      #proxy = dataTableProxy('manual')
-      
-      # observeEvent(input$ui, {
-      #   info = input$ui_cell_edit
-      #   str(info)
-      #   i = info$row
-      #   j = info$col
-      #   v = info$value
-      #   selected_factors[i, j] <<- DT::coerceValue(v, selected_factors[i, j])
-      #   replaceData(proxy, selected_factors, resetPaging = FALSE)  # important
-      # })
-    })
+   #prepare manual input
+   prep_user_input<-as.data.frame(t(rep(1,n.origin-1)))
+   rownames(prep_user_input)<-"manual"
+   
+   
+   y <- reactive({
+     input$x1_cell_edit
+     cat(file=stderr(), "hello","\n")
+     prep_user_input
+   })
+   
+   
+   output$x1 = renderDT(prep_user_input, selection = "none", editable = T)
+   
+   proxy = dataTableProxy('x1')
+   
+   observeEvent(input$x1_cell_edit, {
+     info = input$x1_cell_edit
+     cat(file=stderr(), "hello1","\n")
+     str(info)
+     i = info$row
+     j = info$col
+     v = info$value
+     prep_user_input[i, j] <<- DT::coerceValue(v, prep_user_input[i, j])
+     replaceData(proxy, prep_user_input, resetPaging = FALSE)  # important
+   })
+   
+   output$test1 = renderPrint(y()) #no ui element yet
+
+   peach<-reactive({
+     #test, but dont think this is beign used
+     if (is.null(input$input_meth_manual))
+        is.null(input_meth_manual$input_type)
+            return()
+     
+     
+     
+     zz =input$y36_rows_selected
+     cat(file=stderr(), zz,"\n")
+     
+     switch(input$input_meth_manual,
+                    "selected" = "do something",
+                    "manual" = "do somethingelse"
+               )
+     #y()
+   })
+   
+   
+   
+    # output$ui <- renderUI({
+    #   
+    #   if (is.null(input$input_meth_manual))
+    # #is.null(input_meth_manual$input_type)
+    #     return()
+    #   
+    #   r = input$y36_rows_selected
+    #   selectedfactors<-t(as.matrix(user_chainladderfactors()[r,]))
+    #   output$selected<- DT::renderDataTable(
+    #     DT::datatable(round(selectedfactors,digits=3),
+    #                   options = list(ordering=FALSE)
+    #     )
+    #   )
+    #   output$manual_edit<- DT::renderDataTable(
+    #     DT::datatable(round(selectedfactors,digits=3),
+    #                   options = list(ordering=FALSE),
+    #                   editable = TRUE
+    #     )
+    #   )
+    #   
+    #   
+    #   cat(file=stderr(), r,"\n")
+    #   cat(file=stderr(), selectedfactors,"\n")
+    #   switch(input$input_meth_manual,
+    #        "selected" = DT::dataTableOutput("selected"),
+    #        "manual" = DT::dataTableOutput("manual_edit")
+    #   )
+    #   
+    # 
+    # })
     
     
 

@@ -20,12 +20,19 @@ tabPanel(
           #verbatimTextOutput('test1'),
           DT::dataTableOutput('y36'),
           #verbatimTextOutput('test2'),
+          # wellPanel(width = 3,
+          #   selectInput("input_meth_manual", "Method",
+          #               c("selected", "manual")
+          #               )
+          #   ),
+          DTOutput('x1'),
           wellPanel(width = 3,
-            selectInput("input_meth_manual", "Method",
-                        c("selected", "manual")
-                        )
-            ),
-          uiOutput('ui')
+                       selectInput("input_meth_manual", "Method",
+                                   c("selected", "manual")
+                                   )
+                       ),
+          verbatimTextOutput('test1')
+          #uiOutput('ui')
         )
 
       )
