@@ -76,7 +76,7 @@ shinyServer(function(input, output, session) {
      ))
    )
    
-   output$test1 = renderPrint(orig_weights)
+   #output$test1 = renderPrint(orig_weights)
    new_weights<-reactive({edit_weights(input$x36_cells_selected, orig_weights)})
    new_weights2<-reactive({edit_weights(input$x36_cells_selected, orig_weights)[4,1]})
    
@@ -106,11 +106,13 @@ shinyServer(function(input, output, session) {
      a
     }
    
-   res1<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=1,origin.incl=x)))
-   res2<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=0,origin.incl=x)))
-   result<-rbind(t(res1),t(res2))
-   rownames(result)<-c("weighted last 4", "weighted last 3","weighted last 2", "weighted last 1",
-                       "simple last 4", "simple last 3","simple last 2", "simple last 1")
+   res1<-f1(chainladderNew(tri,user_weights, delta=1))
+   res2<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=1,origin.incl=x)))
+   res3<-f1(chainladderNew(tri,user_weights, delta=0))
+   res4<-sapply(4:1,function(x) f1(chainladderNew(tri,user_weights, delta=0,origin.incl=x)))
+   result<-rbind(t(res1),t(res2),t(res3),t(res4))
+   rownames(result)<-c("weighted all","weighted last 4", "weighted last 3","weighted last 2", "weighted last 1",
+                       "simple all","simple last 4", "simple last 3","simple last 2", "simple last 1")
    result
    })
    #output$y36 = renderPrint({user_chainladder()})
@@ -148,18 +150,25 @@ shinyServer(function(input, output, session) {
      replaceData(proxy, prep_user_input, resetPaging = FALSE)  # important
    })
    
-   output$test1 = renderPrint(y()) #no ui element yet
+   
+   #########code below is in development
+   
+   #output$test1 = renderPrint(y()) #no ui element yet
 
    peach<-reactive({
-     #test, but dont think this is beign used
+     #test, but dont think this is being used
      if (is.null(input$input_meth_manual))
         is.null(input_meth_manual$input_type)
             return()
      
      
+     blah<-reactive({
+       zz =input$y36_rows_selected
+       cat(file=stderr(), zz,"\n")
+       output$test1 = renderPrint(zz)
+       
+     })
      
-     zz =input$y36_rows_selected
-     cat(file=stderr(), zz,"\n")
      
      switch(input$input_meth_manual,
                     "selected" = "do something",
