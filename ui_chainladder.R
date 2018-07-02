@@ -19,7 +19,7 @@ tabPanel(
           "Highlight cells to exclude factor from projection",
           DT::dataTableOutput('x36'),
           #verbatimTextOutput('test1'),
-          6, h1('Calculated Age to age factors'), hr(),
+          h1('Calculated Age to age factors'), hr(),
           "Select factors to use for projecting the triangle.",
           "Alternatively input factors manually below and change selection method to manual.",
           DT::dataTableOutput('y36'),
