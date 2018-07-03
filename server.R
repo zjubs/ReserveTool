@@ -42,7 +42,7 @@ shinyServer(function(input, output, session) {
         res<-remove_weight(edit.list[i,], res)
       }
     }
-    cat(file=stderr(), res,"\n")
+    #cat(file=stderr(), res,"\n")
     res
   }
   
@@ -83,7 +83,7 @@ shinyServer(function(input, output, session) {
    
    #cat(file=stderr(), zeroweights(),"\n")
    output$test2 = renderPrint({cat(file=stderr(), "here","\n")
-     cat(file=stderr(), new_weights(),"\n")
+     #cat(file=stderr(), new_weights(),"\n")
      new_weights()
      })
    #define weight before applying chainladder
@@ -102,7 +102,7 @@ shinyServer(function(input, output, session) {
      # otherwise calc a dev factor as usual
      a<-if(dim(summary(x)$coef)[1] == 0){1}else{
        summary(x)$coef["x","Estimate"]}
-     cat(file=stderr(), a,"\n")
+     #cat(file=stderr(), a,"\n")
      a
     }
    
@@ -129,6 +129,7 @@ shinyServer(function(input, output, session) {
    
    
    y <- reactive({
+     # this gives us the manual factor
      input$x1_cell_edit
      cat(file=stderr(), "hello","\n")
      prep_user_input
@@ -154,30 +155,28 @@ shinyServer(function(input, output, session) {
    #########code below is in development
    
    #output$test1 = renderPrint(y()) #no ui element yet
-
-   peach<-reactive({
-     #test, but dont think this is being used
-     if (is.null(input$input_meth_manual))
-        is.null(input_meth_manual$input_type)
-            return()
-     
-     
-     blah<-reactive({
-       zz =input$y36_rows_selected
-       cat(file=stderr(), zz,"\n")
-       output$test1 = renderPrint(zz)
-       
-     })
-     
-     
-     switch(input$input_meth_manual,
-                    "selected" = "do something",
-                    "manual" = "do somethingelse"
-               )
-     #y()
+   
+   blah<-reactive({
+     zz =input$y36_rows_selected
+     cat(file=stderr(), zz,"\n")
+     user_chainladderfactors()[zz,]
    })
    
+
+   #output$test1 = output$test1 = renderPrint(y()) #renderPrint({blah()})
    
+
+   peach<-reactive({
+
+     ddd<-switch(input$input_meth_manual,
+                    "selected" = blah(),
+                    "manual" = y()
+               )
+     ddd
+     
+   })
+   
+   output$test1 = renderPrint({peach()})
    
     # output$ui <- renderUI({
     #   
