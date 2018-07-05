@@ -5,6 +5,7 @@ tabPanel(
   fluidRow(
     column(
       6, h1('Cumulative triangle'), hr()#,
+      
       #DT::dataTableOutput('x35'),
       #verbatimTextOutput('y35')
     )

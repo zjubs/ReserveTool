@@ -117,9 +117,11 @@ shinyServer(function(input, output, session) {
    output$y36 = DT::renderDataTable(
      DT::datatable(round(user_chainladderfactors(),digits=3),
      options = list(ordering=FALSE),
-     selection ="single"
-     )
-   )
+     #selection ="single",
+     selection = list(target = 'row', mode = 'single', selected = c(1)
+     ))
+    )
+   
    
    # The next section allows users to input manual dev factors or select from
    # pre defined approaches
