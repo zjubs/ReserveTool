@@ -164,49 +164,42 @@ shinyServer(function(input, output, session) {
    #output$test1 = output$test1 = renderPrint(y()) #renderPrint({blah()})
    
 
-   peach<-reactive({
+   prep_results<-reactive({
 
      ddd<-switch(input$input_meth_manual,
                     "selected" = blah(),
                     "manual" = y()
                )
-     ddd
-     
+     ddd<-c(ddd,1) # assume no tail for now. Add in tail factors later
+     LDF<-rev(cumprod(rev(ddd)))
+     currentEval<-getLatestCumulative(tri)
+     EstdUlt<-currentEval* rev(LDF)
+     Reserve<- EstdUlt - currentEval
+     Exhibit <- data.frame(latestIncurred=currentEval, LDF = round(rev(LDF), 3), EstdUlt=round(EstdUlt), Reserve=round(Reserve))
+     Exhibit <- rbind(Exhibit,
+                      data.frame(latestIncurred=round(sum(currentEval)), LDF=NA, EstdUlt=round(sum(EstdUlt)), Reserve = round(sum(Reserve)),
+                                 row.names = "Total"))
+     Exhibit
    })
    
-   output$test1 = renderPrint({peach()})
+   output$test1 = renderPrint({prep_results()})
    
-    # output$ui <- renderUI({
-    #   
-    #   if (is.null(input$input_meth_manual))
-    # #is.null(input_meth_manual$input_type)
-    #     return()
-    #   
-    #   r = input$y36_rows_selected
-    #   selectedfactors<-t(as.matrix(user_chainladderfactors()[r,]))
-    #   output$selected<- DT::renderDataTable(
-    #     DT::datatable(round(selectedfactors,digits=3),
-    #                   options = list(ordering=FALSE)
-    #     )
-    #   )
-    #   output$manual_edit<- DT::renderDataTable(
-    #     DT::datatable(round(selectedfactors,digits=3),
-    #                   options = list(ordering=FALSE),
-    #                   editable = TRUE
-    #     )
-    #   )
-    #   
-    #   
-    #   cat(file=stderr(), r,"\n")
-    #   cat(file=stderr(), selectedfactors,"\n")
-    #   switch(input$input_meth_manual,
-    #        "selected" = DT::dataTableOutput("selected"),
-    #        "manual" = DT::dataTableOutput("manual_edit")
-    #   )
-    #   
-    # 
-    # })
-    
+   output$chainladder_result = DT::renderDataTable(
+     DT::datatable(prep_results(),
+                   options = list(ordering=FALSE),
+                   selection ="none"
+     )
+     
+   )
+   
+   mack <- MackChainLadder(tri, est.sigma="Mack")
+   
+   output$plotDev<- renderPlot({plot(mack, lattice = TRUE)})
+   
+   output$plotAnalysis<- renderPlot({plot(mack)})
+  
+   
+
     
 
    

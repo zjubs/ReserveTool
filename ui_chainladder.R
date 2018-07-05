@@ -43,10 +43,21 @@ tabPanel(
       
     ),
     tabPanel(
-      'Results'
+      'Results',
+      fluidRow(
+        column(
+          6, h1('Chain ladder results'), hr(),
+          DT::dataTableOutput('chainladder_result')
+          #verbatimTextOutput('y35')
+        )
+      )
+
     ),
     tabPanel(
-      'Graphs'
+      'Graphs',
+      plotOutput('plotDev'),
+      plotOutput('plotAnalysis')
+      
     )
     
   )
