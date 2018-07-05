@@ -62,9 +62,7 @@ shinyServer(function(input, output, session) {
   output$x35 = DT::renderDataTable(
     df,
     server = FALSE,
-    selection = list(target = 'cell', selected = cbind(
-      c(1, 3, 4, 9), c(3, 2, 1, 2)
-    ))
+    selection="none"
   )
   output$y35 = renderPrint(input$x35_cells_selected)
 
@@ -132,7 +130,7 @@ shinyServer(function(input, output, session) {
      # this gives us the manual factor
      input$x1_cell_edit
      cat(file=stderr(), "hello","\n")
-     prep_user_input
+     unlist(prep_user_input)
    })
    
    
