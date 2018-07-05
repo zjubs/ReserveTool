@@ -12,15 +12,9 @@ library(shinydashboard)
 library(shinythemes)
 library(DT)
 
-header <- dashboardHeader(title = "My Dashboard")
+header <- dashboardHeader(title = "Reserving Dashboard")
 
-sidebar <- dashboardSidebar(
-  sidebarMenu(
-    menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-    menuItem("Widgets", icon = icon("th"), tabName = "widgets",
-             badgeLabel = "new", badgeColor = "green")
-  )
-)
+sidebar <- dashboardSidebar(disable=TRUE)
 
 body <- dashboardBody(fluidPage
   (theme=shinytheme("cerulean")),
