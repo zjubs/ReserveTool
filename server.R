@@ -121,6 +121,9 @@ shinyServer(function(input, output, session) {
      )
    )
    
+   # The next section allows users to input manual dev factors or select from
+   # pre defined approaches
+   
    #prepare manual input
    prep_user_input<-as.data.frame(t(rep(1,n.origin-1)))
    rownames(prep_user_input)<-"manual"
@@ -149,10 +152,6 @@ shinyServer(function(input, output, session) {
      replaceData(proxy, prep_user_input, resetPaging = FALSE)  # important
    })
    
-   
-   #########code below is in development
-   
-   #output$test1 = renderPrint(y()) #no ui element yet
    
    blah<-reactive({
      zz =input$y36_rows_selected
@@ -192,16 +191,10 @@ shinyServer(function(input, output, session) {
      
    )
    
+   # use MackChainLadde function in chain ladder library to produce graphs
    mack <- MackChainLadder(tri, est.sigma="Mack")
-   
    output$plotDev<- renderPlot({plot(mack, lattice = TRUE)})
-   
-   output$plotAnalysis<- renderPlot({plot(mack)})
-  
-   
-
-    
-
+    output$plotAnalysis<- renderPlot({plot(mack)})
    
 
 })
