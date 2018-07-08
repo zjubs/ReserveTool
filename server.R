@@ -175,9 +175,9 @@ shinyServer(function(input, output, session) {
      currentEval<-getLatestCumulative(tri)
      EstdUlt<-currentEval* rev(LDF)
      Reserve<- EstdUlt - currentEval
-     Exhibit <- data.frame(latestIncurred=currentEval, LDF = round(rev(LDF), 3), EstdUlt=round(EstdUlt), Reserve=round(Reserve))
+     Exhibit <- data.frame(Latest=currentEval, LDF = round(rev(LDF), 3), EstdUlt=round(EstdUlt), Reserve=round(Reserve))
      Exhibit <- rbind(Exhibit,
-                      data.frame(latestIncurred=round(sum(currentEval)), LDF=NA, EstdUlt=round(sum(EstdUlt)), Reserve = round(sum(Reserve)),
+                      data.frame(Latest=round(sum(currentEval)), LDF=NA, EstdUlt=round(sum(EstdUlt)), Reserve = round(sum(Reserve)),
                                  row.names = "Total"))
      Exhibit
    })
@@ -195,7 +195,66 @@ shinyServer(function(input, output, session) {
    # use MackChainLadde function in chain ladder library to produce graphs
    mack <- MackChainLadder(tri, est.sigma="Mack")
    output$plotDev<- renderPlot({plot(mack, lattice = TRUE)})
-    output$plotAnalysis<- renderPlot({plot(mack)})
+   output$plotAnalysis<- renderPlot({plot(mack)})
+   
+   # Next section for BF method
+   
+   output$BF = DT::renderDataTable(
+     DT::datatable(prep_results(),
+                   options = list(ordering=FALSE),
+                   selection ="none"
+     )
+   )
+   
+   #prepare manual input
+   prep_BFprior_input<-as.data.frame(rep(18000,n.origin))
+   # 18000 is placeholder prior val
+   # should consider linking prior val to the triangle being used
+
+   colnames(prep_BFprior_input)<-"prior"
+   
+   BF_prior_edited <- reactive({
+     # this gives us the manual BF priors
+     input$BFprior_cell_edit
+     cat(file=stderr(), "hello","\n")
+     unlist(prep_BFprior_input)
+   })
+   
+   
+   output$BFprior = renderDT(prep_BFprior_input, selection = "none",
+                             editable = T) #, rownames = FALSE)
+   
+   proxy2 = dataTableProxy('BFprior')
+   
+   observeEvent(input$BFprior_cell_edit, {
+     info = input$BFprior_cell_edit
+     cat(file=stderr(), "hello1","\n")
+     str(info)
+     i = info$row
+     j = info$col
+     v = info$value
+     prep_BFprior_input[i, j] <<- DT::coerceValue(v, prep_BFprior_input[i, j])
+     replaceData(proxy2, prep_BFprior_input, resetPaging = FALSE)  # important
+   })
+   
+   # calc BF ult
+   CalcBf<-reactive({
+     CLresults<-prep_results()[-nrow(prep_results()),]
+     cat(file=stderr(), "a", "\n")
+     CLult<-CLresults$EstdUlt
+     latest<- CLresults$Latest
+     BFUlt<-latest+(1-(latest/CLult))*BF_prior_edited()
+     as.data.frame(BFUlt)
+     
+   })
+   output$test2 = renderPrint({prep_results()})
+   output$BFult = renderDT(CalcBf(), selection = "none", rownames = FALSE)
+   # write better code here
+   #CL_ultimate<-Ult*tailfactor
+   #Percent_developed<-(Latest/CL_ultimate)
+   #Prior_ultimate<-BF_prior_edited()
+   #BF_ultimate<-Latest+(1-Percent_developed/100)*Prior_ultimate
+
    
 
 })
