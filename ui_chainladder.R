@@ -15,11 +15,11 @@ tabPanel(
       ),
       fluidRow(
         column(
-          6, h1('Triangele Age to age factors'), hr(),
+          6, h1('Triangle Age To Age Factors'), hr(),
           "Highlight cells to exclude factor from projection",
           DT::dataTableOutput('x36'),
           #verbatimTextOutput('test1'),
-          h1('Calculated Age to age factors'), hr(),
+          h1('Calculated Age To Age Factors'), hr(),
           "Select factors to use for projecting the triangle.",
           "Alternatively input factors manually below and change selection method to manual.",
           DT::dataTableOutput('y36'),
@@ -34,8 +34,8 @@ tabPanel(
                        selectInput("input_meth_manual", "Selection Method",
                                    c("selected", "manual")
                                    )
-                       ),
-          verbatimTextOutput('test1')
+                       )
+          #verbatimTextOutput('test1')
           #uiOutput('ui')
         )
 

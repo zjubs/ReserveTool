@@ -28,14 +28,14 @@ shinyServer(function(input, output, session) {
   }
   
   remove_weight<-function(edit,weights){
-    cat(file=stderr(), "removing","\n")
+    #cat(file=stderr(), "removing","\n")
     weights[edit[1],edit[2]]<-0
     #cat(file=stderr(), weights,"\n")
     weights
   }
   
   edit_weights<-function(edit.list, weights){
-    cat(file=stderr(), "editing","\n")
+    #cat(file=stderr(), "editing","\n")
     res<-weights
     if(!is.null(edit.list)){
       for(i in 1:nrow(edit.list)){
@@ -131,9 +131,9 @@ shinyServer(function(input, output, session) {
    
    
    y <- reactive({
-     # this gives us the manual factor
+     # this gives us the manual factors after user has edited the datatable
      input$x1_cell_edit
-     cat(file=stderr(), "hello","\n")
+     #cat(file=stderr(), "hello","\n")
      unlist(prep_user_input)
    })
    
@@ -144,7 +144,7 @@ shinyServer(function(input, output, session) {
    
    observeEvent(input$x1_cell_edit, {
      info = input$x1_cell_edit
-     cat(file=stderr(), "hello1","\n")
+     #cat(file=stderr(), "hello1","\n")
      str(info)
      i = info$row
      j = info$col
@@ -156,7 +156,7 @@ shinyServer(function(input, output, session) {
    
    blah<-reactive({
      zz =input$y36_rows_selected
-     cat(file=stderr(), zz,"\n")
+     #cat(file=stderr(), zz,"\n")
      user_chainladderfactors()[zz,]
    })
    
@@ -228,7 +228,7 @@ shinyServer(function(input, output, session) {
    
    observeEvent(input$BFprior_cell_edit, {
      info = input$BFprior_cell_edit
-     cat(file=stderr(), "hello1","\n")
+     #cat(file=stderr(), "hello1","\n")
      str(info)
      i = info$row
      j = info$col
@@ -243,17 +243,13 @@ shinyServer(function(input, output, session) {
      cat(file=stderr(), "a", "\n")
      CLult<-CLresults$EstdUlt
      latest<- CLresults$Latest
-     BFUlt<-latest+(1-(latest/CLult))*BF_prior_edited()
+     BFUlt<-round(latest+(1-(latest/CLult))*BF_prior_edited())
      as.data.frame(BFUlt)
      
    })
    output$test2 = renderPrint({prep_results()})
    output$BFult = renderDT(CalcBf(), selection = "none", rownames = FALSE)
-   # write better code here
-   #CL_ultimate<-Ult*tailfactor
-   #Percent_developed<-(Latest/CL_ultimate)
-   #Prior_ultimate<-BF_prior_edited()
-   #BF_ultimate<-Latest+(1-Percent_developed/100)*Prior_ultimate
+
 
    
 

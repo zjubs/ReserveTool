@@ -21,7 +21,8 @@ body <- dashboardBody(fluidPage
   navbarPage(
     
     title = 'Reserving Tool',
-    source("ui_settings.R")$value,
+# todo: add a settings tab which will allow to select differnt triangles and other options    
+#    source("ui_settings.R")$value,
     source("ui_chainladder.R")$value,
     source("ui_BF.R")$value
     
